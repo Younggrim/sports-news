@@ -1,0 +1,28 @@
+{
+  "tabs": [
+    {
+      "label": "Steelers",
+      "feeds": [
+        {"name": "ESPN", "url": "https://www.espn.com/espn/rss/nfl/team?team=pit"}
+      ]
+    },
+    {
+      "label": "Pirates",
+      "feeds": [
+        {"name": "ESPN", "url": "https://www.espn.com/espn/rss/mlb/team?team=pit"}
+      ]
+    },
+    {
+      "label": "Charlotte FC",
+      "feeds": [
+        {"name": "ESPN", "url": "https://www.espn.com/espn/rss/soccer/team?team=cha"}
+      ]
+    },
+    {
+      "label": "Penguins",
+      "feeds": [
+        {"name": "ESPN", "url": "https://www.espn.com/espn/rss/nhl/team?team=pit"}
+      ]
+    }
+  ]
+}
