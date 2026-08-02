@@ -33,7 +33,7 @@
     {
       "label": "Pitt Football",
       "feeds": [
-        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pitt+Panthers%22+football+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
+        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pitt+Panthers%22+football+-volleyball+-helmet+-jersey+-sweatshirt+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
       ]
     },
     {
