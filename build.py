@@ -83,10 +83,16 @@ def generate_html(tabs_data: list[dict]) -> str:
         for it in all_items[:30]:
             pub_display = it["pub_date"].strftime("%b %d, %Y") if it["pub_date"].year > 1 else ""
             title_esc = it["title"].replace('"', "&quot;")
+            # Google News redirect feeds put a duplicate of the title in the
+            # description instead of a real snippet - skip showing it then.
+            desc = it["desc"]
+            if desc.lower().startswith(it["title"].lower()[:30]):
+                desc = ""
+            desc_html = f'<p class="desc">{desc}</p>' if desc else ""
             cards += f"""
       <a class="card" href="{it['link']}" target="_blank" rel="noopener">
         <h3>{title_esc}</h3>
-        <p class="desc">{it['desc']}</p>
+        {desc_html}
         <p class="meta">{it['source']} &bull; {pub_display}</p>
       </a>"""
 
