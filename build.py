@@ -30,6 +30,77 @@ def strip_html(text: str) -> str:
     return html.unescape(text).strip()
 
 
+# (label, ESPN sport slug, ESPN league slug, ESPN team id/abbreviation)
+SCORE_TEAMS = [
+    ("Steelers", "football", "nfl", "pit"),
+    ("Pirates", "baseball", "mlb", "pit"),
+    ("Charlotte FC", "soccer", "usa.1", "21300"),
+    ("Penguins", "hockey", "nhl", "pit"),
+    ("Kent State", "football", "college-football", "kent"),
+    ("Pitt", "football", "college-football", "pitt"),
+]
+
+
+def fetch_json(url: str, retries: int = 3) -> dict | None:
+    for attempt in range(1, retries + 1):
+        try:
+            req = urllib.request.Request(url, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=15, context=_ssl_context) as resp:
+                return json.loads(resp.read())
+        except Exception as e:
+            print(f"  Warning: attempt {attempt}/{retries} failed for {url}: {e}")
+            if attempt < retries:
+                time.sleep(2 * attempt)
+    print(f"  ERROR: giving up on {url} after {retries} attempts")
+    return None
+
+
+def fetch_team_scores(sport: str, league: str, team_id: str) -> dict:
+    result = {"record": None, "last_game": None, "next_game": None}
+
+    team_data = fetch_json(f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/teams/{team_id}")
+    if team_data:
+        items = team_data.get("team", {}).get("record", {}).get("items", [])
+        if items:
+            result["record"] = items[0].get("summary")
+
+    sched_data = fetch_json(f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/teams/{team_id}/schedule")
+    if sched_data:
+        events = sched_data.get("events", [])
+        completed = []
+        upcoming = []
+        for e in events:
+            comp = (e.get("competitions") or [{}])[0]
+            status = comp.get("status", {}).get("type", {})
+            try:
+                event_date = datetime.fromisoformat(e["date"].replace("Z", "+00:00"))
+            except (KeyError, ValueError):
+                continue
+            if status.get("completed"):
+                completed.append((event_date, e, comp))
+            elif status.get("state") == "pre":
+                upcoming.append((event_date, e, comp))
+
+        if completed:
+            completed.sort(key=lambda x: x[0], reverse=True)
+            _, e, comp = completed[0]
+            competitors = comp.get("competitors", [])
+            parts = []
+            for c in competitors:
+                name = c.get("team", {}).get("displayName", "?")
+                score = c.get("score", {})
+                score_val = score.get("displayValue") if isinstance(score, dict) else score
+                parts.append(f"{name} {score_val}")
+            result["last_game"] = " - ".join(parts) if parts else e.get("name")
+
+        if upcoming:
+            upcoming.sort(key=lambda x: x[0])
+            event_date, e, comp = upcoming[0]
+            result["next_game"] = f"{e.get('shortName', e.get('name'))} - {event_date.strftime('%b %d, %Y')}"
+
+    return result
+
+
 def fetch_rss(url: str, retries: int = 3) -> list[dict]:
     data = None
     for attempt in range(1, retries + 1):
@@ -74,13 +145,29 @@ def fetch_rss(url: str, retries: int = 3) -> list[dict]:
     return items
 
 
-def generate_html(tabs_data: list[dict]) -> str:
-    tab_buttons = ""
-    tab_contents = ""
+def generate_html(tabs_data: list[dict], scores_data: list[dict]) -> str:
+    tab_buttons = '    <button class="tab-btn active" data-tab="tab-0">Scores</button>\n'
 
-    for i, tab in enumerate(tabs_data):
-        active = " active" if i == 0 else ""
-        tab_buttons += f'    <button class="tab-btn{active}" data-tab="tab-{i}">{tab["label"]}</button>\n'
+    score_cards = ""
+    for s in scores_data:
+        record_line = f'<p class="score-record">Record: {s["record"]}</p>' if s.get("record") else ""
+        last_line = f'<p class="score-line">Last: {s["last_game"]}</p>' if s.get("last_game") else ""
+        next_line = f'<p class="score-line">Next: {s["next_game"]}</p>' if s.get("next_game") else ""
+        if not (record_line or last_line or next_line):
+            next_line = '<p class="score-line">No games yet this season</p>'
+        score_cards += f"""
+      <div class="score-card">
+        <h3>{s['label']}</h3>
+        {record_line}
+        {last_line}
+        {next_line}
+      </div>"""
+
+    tab_contents = f'    <div class="tab-content score-grid" id="tab-0" style="display: grid;">{score_cards}\n    </div>\n'
+
+    for idx, tab in enumerate(tabs_data):
+        i = idx + 1
+        tab_buttons += f'    <button class="tab-btn" data-tab="tab-{i}">{tab["label"]}</button>\n'
 
         all_items = []
         for feed in tab["feeds"]:
@@ -105,8 +192,7 @@ def generate_html(tabs_data: list[dict]) -> str:
         <p class="meta">{it['source']} &bull; {pub_display}</p>
       </a>"""
 
-        display = "grid" if i == 0 else "none"
-        tab_contents += f'    <div class="tab-content" id="tab-{i}" style="display: {display};">{cards}\n    </div>\n'
+        tab_contents += f'    <div class="tab-content" id="tab-{i}" style="display: none;">{cards}\n    </div>\n'
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -134,6 +220,10 @@ def generate_html(tabs_data: list[dict]) -> str:
     .card h3 {{ font-size: 1rem; font-weight: 600; line-height: 1.35; margin-bottom: 0.5rem; }}
     .desc {{ color: #ccc; font-size: 0.85rem; line-height: 1.4; margin-bottom: 0.6rem; }}
     .meta {{ color: #888; font-size: 0.78rem; }}
+    .score-card {{ background: #1a1a1a; border-radius: 12px; padding: 1.25rem; }}
+    .score-card h3 {{ font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: #ffb612; }}
+    .score-record {{ font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }}
+    .score-line {{ color: #ccc; font-size: 0.85rem; margin-bottom: 0.3rem; }}
     @media (max-width: 768px) {{
       .tab-content {{ grid-template-columns: 1fr; padding: 1rem; }}
       .tabs {{ padding: 0 1rem; }}
@@ -237,7 +327,15 @@ def main():
             tab_info["feeds"].append({"name": feed["name"], "items": items})
         tabs_data.append(tab_info)
 
-    html_out = generate_html(tabs_data)
+    print("\nFetching scores/standings...")
+    scores_data = []
+    for label, sport, league, team_id in SCORE_TEAMS:
+        print(f"  {label} ({sport}/{league}/{team_id})")
+        s = fetch_team_scores(sport, league, team_id)
+        s["label"] = label
+        scores_data.append(s)
+
+    html_out = generate_html(tabs_data, scores_data)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "index.html").write_text(html_out)
     (output_dir / "CNAME").write_text("sports.news.macdwellings.com\n")
