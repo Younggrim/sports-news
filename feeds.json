@@ -3,37 +3,37 @@
     {
       "label": "Steelers",
       "feeds": [
-        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pittsburgh+Steelers%22+-jersey+-helmet+-sweatshirt+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
+        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pittsburgh+Steelers%22+-jersey+-helmet+-sweatshirt+-site:facebook.com+-site:x.com+-site:tmz.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
       ]
     },
     {
       "label": "Pirates",
       "feeds": [
-        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pittsburgh+Pirates%22+-jersey+-helmet+-sweatshirt+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
+        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pittsburgh+Pirates%22+-jersey+-helmet+-sweatshirt+-site:facebook.com+-site:x.com+-site:tmz.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
       ]
     },
     {
       "label": "Charlotte FC",
       "feeds": [
-        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Charlotte+FC%22+-jersey+-scarf+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
+        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Charlotte+FC%22+soccer+-jersey+-scarf+-crash+-killed+-homicide+-shooting+-site:facebook.com+-site:x.com+-site:tmz.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
       ]
     },
     {
       "label": "Penguins",
       "feeds": [
-        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pittsburgh+Penguins%22+-jersey+-helmet+-sweatshirt+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
+        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pittsburgh+Penguins%22+-jersey+-helmet+-sweatshirt+-site:facebook.com+-site:x.com+-site:tmz.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
       ]
     },
     {
       "label": "Kent State Football",
       "feeds": [
-        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Kent+State%22+football+-volleyball+-basketball+-jersey+-helmet+-sweatshirt+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
+        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Kent+State%22+football+-volleyball+-basketball+-jersey+-helmet+-sweatshirt+-site:facebook.com+-site:x.com+-site:tmz.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
       ]
     },
     {
       "label": "Pitt Football",
       "feeds": [
-        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pitt+Panthers%22+football+-volleyball+-basketball+-helmet+-jersey+-sweatshirt+-site:facebook.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
+        {"name": "News", "url": "https://news.google.com/rss/search?q=%22Pitt+Panthers%22+football+-volleyball+-basketball+-helmet+-jersey+-sweatshirt+-site:facebook.com+-site:x.com+-site:tmz.com+when:14d&hl=en-US&gl=US&ceid=US:en"}
       ]
     },
     {
